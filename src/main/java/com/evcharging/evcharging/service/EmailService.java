@@ -8,12 +8,16 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Real SMTP delivery via JavaMailSender - see application.properties for the
 // MailHog-by-default dev configuration and AUTHENTICATION_DESIGN.md section
 // 6 for why this must fail loudly rather than pretend to succeed.
 @Service
 public class EmailService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
     private final String fromAddress;
@@ -35,6 +39,7 @@ public class EmailService {
 
             mailSender.send(message);
         } catch (MessagingException | MailException e) {
+            log.error("Failed to send OTP email to {}: {}", to, e.getMessage(), e);
             throw new EmailSendException(e);
         }
     }
